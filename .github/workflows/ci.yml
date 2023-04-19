@@ -26,6 +26,8 @@ jobs:
               run: docker compose pull
             - name: Start services
               run: docker compose up --build -d
+            - name: test
+              run: docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)"
             - name: Wait for services
               run: |
                   while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
