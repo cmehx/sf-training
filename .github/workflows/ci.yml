@@ -25,9 +25,7 @@ jobs:
             - name: Pull images
               run: docker compose pull
             - name: Start services
-              run: docker compose up
-            - name: test
-              run: docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)"
+              run: docker compose up --build -d
             - name: Wait for services
               run: |
                   while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
@@ -35,7 +33,6 @@ jobs:
                       starting) sleep 1;;
                       healthy) exit 0;;
                       unhealthy) exit 1;;
-                      *) sleep 1;;
                     esac
                   done
                   exit 1
