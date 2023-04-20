@@ -2,16 +2,18 @@
 
 namespace App\Entity;
 
-
 use App\Repository\ArtistRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -19,7 +21,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
-
 use ApiPlatform\Metadata\GetCollection;
 
 
@@ -71,6 +72,46 @@ class Artist
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['artist:list', 'artist:item'])]
     private ?string $spotifyId = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Release", mappedBy="artist")
+     */
+    private $releases;
+
+    public function __construct()
+    {
+        $this->releases = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection|Release[]
+     */
+    public function getReleases(): Collection
+    {
+        return $this->releases;
+    }
+
+    public function addRelease(Release $release): self
+    {
+        if (!$this->releases->contains($release)) {
+            $this->releases[] = $release;
+            $release->setArtist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRelease(Release $release): self
+    {
+        if ($this->releases->removeElement($release)) {
+            // set the owning side to null (unless already changed)
+            if ($release->getArtist() === $this) {
+                $release->setArtist(null);
+            }
+        }
+
+        return $this;
+    }
 
     public function getId(): ?int
     {
