@@ -33,8 +33,8 @@ use ApiPlatform\Metadata\GetCollection;
 )]
 #[ApiResource(
     operations: [
-        new Get(normalizationContext: ['groups' => 'artist:item']),
-        new GetCollection(normalizationContext: ['groups' => 'artist:list']),
+        new Get(normalizationContext: ['groups' => 'artist:item:read']),
+        new GetCollection(normalizationContext: ['groups' => 'artist:list:read']),
         new Post(),
         new Put(),
         new Delete()
@@ -49,33 +49,33 @@ class Artist
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['artist:list', 'artist:item'])]
+    #[Groups(['artist:list:read', 'artist:item:read', 'release:item:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Groups(['artist:list', 'artist:item'])]
+    #[Groups(['artist:list:read', 'artist:item:read', 'release:item:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['artist:item'])]
+    #[Groups(['artist:item:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['artist:item'])]
+    #[Groups(['artist:item:read'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Groups(['artist:item'])]
+    #[Groups(['artist:item:read'])]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
     private ?\DateTimeInterface $dateOfBirth = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['artist:list', 'artist:item'])]
+    #[Groups(['artist:list:read', 'artist:item:read', 'release:item:read'])]
     private ?string $spotifyId = null;
 
     #[ORM\OneToMany(targetEntity: Release::class, mappedBy: 'artist')]
-    #[Groups(['artist:list', 'artist:item'])]
+    #[Groups(['artist:item:read'])]
     private $releases;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]

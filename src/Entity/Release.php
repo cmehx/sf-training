@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -24,8 +25,8 @@ use ApiPlatform\Metadata\GetCollection;
 #[ORM\Entity(repositoryClass: ReleaseRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(normalizationContext: ['groups' => 'release:item:read']),
+        new GetCollection(normalizationContext: ['groups' => 'release:list:read']),
         new Post(),
         new Put(),
         new Delete()
@@ -39,30 +40,37 @@ class Release
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['release:list:read', 'artist:item:read', 'release:item:read'])]
     private ?int $id = null;
 
     
     #[ORM\Column(type:"string", length:255)]
     #[Assert\Choice(choices:["album", "single", "compilation"])]
+    #[Groups(['release:list:read', 'artist:item:read', 'release:item:read'])]
     private ?string $type = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
+    #[Groups(['release:list:read', 'artist:item:read', 'release:item:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
+    #[Groups(['release:list:read', 'artist:item:read', 'release:item:read'])]
     private ?\DateTimeInterface $releaseDate = null;
 
     #[ORM\ManyToOne(targetEntity: Artist::class, inversedBy: 'releases')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['release:item:read'])]
     private $artist;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['release:list:read', 'artist:item:read', 'release:item:read'])]
     private ?string $spotifyId = null;
 
     #[ORM\Column(type: "integer")]
     #[Range(min: 0, max: 100)]
+    #[Groups(['release:list:read', 'artist:item:read', 'release:item:read'])]
     private ?int $popularity = null;
     
     public function getId(): ?int
