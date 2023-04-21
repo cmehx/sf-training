@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Collection;
 
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
@@ -39,7 +40,7 @@ use ApiPlatform\Metadata\GetCollection;
         new Delete()
     ],
     //order: ['year' => 'DESC', 'city' => 'ASC'],
-    paginationEnabled: false,
+    paginationEnabled: true,
 )]
 #[ApiFilter(ExistsFilter::class, properties: ['spotifyId'])]
 //#[ApiFilter(ExistsFilter::class, properties: ['id' => 'exact']/*['id' => 'exact', 'price' => 'exact', 'description' => 'partial']*/)]
@@ -73,10 +74,13 @@ class Artist
     #[Groups(['artist:list', 'artist:item'])]
     private ?string $spotifyId = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Release", mappedBy="artist")
-     */
+    #[ORM\OneToMany(targetEntity: Release::class, mappedBy: 'artist')]
+    #[Groups(['artist:list', 'artist:item'])]
     private $releases;
+
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    #[Range(min: 0, max: 100)]
+    private ?int $popularity = null;
 
     public function __construct()
     {
@@ -174,6 +178,18 @@ class Artist
     public function setSpotifyId(?string $spotifyId): self
     {
         $this->spotifyId = $spotifyId;
+
+        return $this;
+    }
+
+    public function getPopularity(): ?int
+    {
+        return $this->popularity;
+    }
+
+    public function setPopularity(?int $popularity): self
+    {
+        $this->popularity = $popularity;
 
         return $this;
     }

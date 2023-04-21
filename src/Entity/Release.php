@@ -2,11 +2,16 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 use App\Repository\ReleaseRepository;
 use App\Entity\Artist;
+
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -26,7 +31,7 @@ use ApiPlatform\Metadata\GetCollection;
         new Delete()
     ],
     //order: ['year' => 'DESC', 'city' => 'ASC'],
-    paginationEnabled: false,
+    paginationEnabled: true,
 )]
 class Release
 {
@@ -45,7 +50,11 @@ class Release
     #[Assert\NotBlank]
     private ?string $name = null;
 
-    #[ORM\ManyToOne(targetEntity: "Artist", inversedBy: "releases")]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
+    private ?\DateTimeInterface $releaseDate = null;
+
+    #[ORM\ManyToOne(targetEntity: Artist::class, inversedBy: 'releases')]
     #[ORM\JoinColumn(nullable: false)]
     private $artist;
 
@@ -134,6 +143,18 @@ class Release
     public function setPopularity(?int $popularity): self
     {
         $this->popularity = $popularity;
+
+        return $this;
+    }
+
+    public function getReleaseDate(): ?\DateTimeInterface
+    {
+        return $this->releaseDate;
+    }
+
+    public function setReleaseDate(?\DateTimeInterface $releaseDate): self
+    {
+        $this->releaseDate = $releaseDate;
 
         return $this;
     }
