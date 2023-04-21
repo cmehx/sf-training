@@ -33,8 +33,8 @@ use ApiPlatform\Metadata\GetCollection;
 )]
 #[ApiResource(
     operations: [
-        new Get(normalizationContext: ['groups' => 'artist:item:read']),
-        new GetCollection(normalizationContext: ['groups' => 'artist:list:read']),
+        new Get(normalizationContext: ['groups' => 'artist:item:get']),
+        new GetCollection(normalizationContext: ['groups' => 'artist:list:get']),
         new Post(),
         new Put(),
         new Delete()
@@ -49,38 +49,38 @@ class Artist
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['artist:list:read', 'artist:item:read', 'release:item:read'])]
+    #[Groups(['artist:list:get', 'artist:item:get', 'release:item:get'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Groups(['artist:list:read', 'artist:item:read', 'release:item:read'])]
+    #[Groups(['artist:list:get', 'artist:item:get', 'release:item:get'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['artist:item:read'])]
+    #[Groups(['artist:item:get'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['artist:item:read'])]
+    #[Groups(['artist:item:get'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Groups(['artist:item:read'])]
+    #[Groups(['artist:item:get'])]
     #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
     private ?\DateTimeInterface $dateOfBirth = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['artist:list:read', 'artist:item:read', 'release:item:read'])]
+    #[Groups(['artist:list:get', 'artist:item:get', 'release:item:get'])]
     private ?string $spotifyId = null;
-
-    #[ORM\OneToMany(targetEntity: Release::class, mappedBy: 'artist')]
-    #[Groups(['artist:item:read'])]
-    private $releases;
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     #[Range(min: 0, max: 100)]
     private ?int $popularity = null;
+
+    #[ORM\OneToMany(targetEntity: Release::class, mappedBy: 'artist')]
+    #[Groups(['artist:item:get'])]
+    private $releases;
 
     public function __construct()
     {
