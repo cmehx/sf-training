@@ -90,9 +90,9 @@ class Artist
     /**
      * @return Collection|Release[]
      */
-    public function getReleases(): Collection
+    public function getReleases(): Array
     {
-        return $this->releases;
+        return $this->releases->getValues();
     }
 
     public function addRelease(Release $release): self
